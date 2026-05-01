@@ -30,7 +30,7 @@
             transition: all 0.4s ease;
             z-index: 100;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            white-space: nowrap; /* 確保長文字不會換行 */
+            white-space: nowrap;
         }
 
         .capoo-img {
@@ -72,9 +72,13 @@
         let count = 0;
         let currentSpeed = 0.4;
 
+        // 原始圖片庫
         const capooImages = [
             'img/capoo1.png','img/capoo2.png','img/capoo3.png','img/capoo4.png','img/capoo5.png',
         ];
+
+        // ★ 用來追蹤還沒被抽到的圖片
+        let availableImages = [...capooImages];
 
         btn.addEventListener('click', () => {
             count++;
@@ -92,17 +96,15 @@
                     btn.style.top = rect.top + 'px';
                 }
 
-                // 加速模式
                 currentSpeed = Math.max(0.05, 0.4 - (count * 0.08)); 
                 btn.style.transition = `all ${currentSpeed}s ease`;
 
                 moveButton();
                 
-                // ★ 假裝生氣與提示文字邏輯
                 const tips = [
                     "欸？跑掉了！", 
                     "變快了抓不到吧～", 
-                    "吼！真的不給你點了喔！", // 第三次點擊時顯示
+                    "吼！真的不給你點了喔！", 
                     "最後一關！加油！"
                 ];
                 btn.innerText = tips[count - 1];
@@ -132,9 +134,21 @@
             btn.style.top = randomY + 'px';
         }
 
+        // ★ 修改後的 showCapoo 函式
         function showCapoo(x, y) {
+            // 如果所有圖片都抽完了，就重新重置清單（洗牌）
+            if (availableImages.length === 0) {
+                availableImages = [...capooImages];
+            }
+
+            // 隨機選一個索引
+            const randomIndex = Math.floor(Math.random() * availableImages.length);
+            
+            // 從清單中「剪下」該圖片（這會改變 availableImages 的長度，達成不重複）
+            const selectedImg = availableImages.splice(randomIndex, 1)[0];
+
             const img = document.createElement('img');
-            img.src = capooImages[Math.floor(Math.random() * capooImages.length)];
+            img.src = selectedImg;
             img.className = 'capoo-img';
             img.style.left = x + 'px';
             img.style.top = y + 'px';
