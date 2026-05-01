@@ -23,23 +23,28 @@
             color: white;
             border: none;
             border-radius: 50px;
-            position: fixed;
+            position: fixed; /* 改為定點，JS 會控制其 top/left */
             transition: all 0.2s ease;
             z-index: 100;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            /* 下面兩行確保初始在螢幕正中央 */
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
         }
 
         .capoo-img {
             position: fixed;
-            width: 100px; /* 視圖片大小調整 */
+            width: 250px; /* ★ 這裡調大圖片尺寸，原本是 100px */
             pointer-events: none;
             animation: fadeOut 1.5s forwards;
             z-index: 50;
+            transform: translate(-50%, -50%); /* 讓圖片中心對準點擊位置 */
         }
 
         @keyframes fadeOut {
-            0% { opacity: 1; transform: scale(0.5); }
-            100% { opacity: 0; transform: scale(1.2) translateY(-50px); }
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
+            100% { opacity: 0; transform: translate(-50%, -200%) scale(1.5); }
         }
 
         #message {
@@ -66,40 +71,47 @@
         const message = document.getElementById('message');
         let count = 0;
 
-        // 這裡可以替換成你喜歡的咖波圖片 URL
+        // 圖片路徑（如果你創了 img 資料夾，請記得改成 'img/yourfile.png'）
         const capooImages = [
-            'img/capoo1.png','img/capoo2.png','img/capoo3.png','img/capoo4.png','img/capoo5.png', 
+            'img/capoo1.png','img/capoo2.png','img/capoo3.png','img/capoo4.png','img/capoo5.png',
         ];
 
         btn.addEventListener('click', () => {
             count++;
 
+            // 取得目前按鈕的位置，用來放圖片
+            const rect = btn.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
             if (count < 5) {
-                // 1. 顯示咖波圖片
-                showCapoo(btn.offsetLeft, btn.offsetTop);
+                // 1. 顯示加大後的咖波圖
+                showCapoo(centerX, centerY);
 
                 // 2. 讓按鈕跑走
                 moveButton();
                 
-                // 3. 稍微改變按鈕文字增加互動感
-                const tips = ["還差一點！", "抓不到我～", "加油！", "再試一次？"];
+                const tips = ["欸？跑掉了！", "抓不到我～", "再一次！", "就快點到了！"];
                 btn.innerText = tips[count - 1];
 
+                // 第一次點擊後移除居中的 transform，改由 left/top 完全控制
+                btn.style.transform = 'none';
+
             } else {
-                // 達成 5 次點擊
                 btn.style.display = 'none';
                 message.style.display = 'block';
                 document.body.style.backgroundColor = '#fff5f5';
                 
-                // 額外驚喜：灑出滿地圖案
-                for(let i=0; i<20; i++) {
-                    setTimeout(() => showCapoo(Math.random()*window.innerWidth, Math.random()*window.innerHeight), i*100);
+                for(let i=0; i<15; i++) {
+                    setTimeout(() => {
+                        showCapoo(Math.random()*window.innerWidth, Math.random()*window.innerHeight);
+                    }, i*150);
                 }
             }
         });
 
         function moveButton() {
-            const padding = 50;
+            const padding = 100;
             const maxX = window.innerWidth - btn.offsetWidth - padding;
             const maxY = window.innerHeight - btn.offsetHeight - padding;
 
@@ -112,7 +124,6 @@
 
         function showCapoo(x, y) {
             const img = document.createElement('img');
-            // 隨機選一張咖波圖
             img.src = capooImages[Math.floor(Math.random() * capooImages.length)];
             img.className = 'capoo-img';
             img.style.left = x + 'px';
@@ -120,14 +131,10 @@
 
             document.body.appendChild(img);
 
-            // 動畫結束後移除元素以免占用記憶體
             setTimeout(() => {
                 img.remove();
             }, 1500);
         }
-
-        // 初始化位置，避免一開始就在中間點不到
-        window.onload = moveButton;
     </script>
 </body>
 </html>
