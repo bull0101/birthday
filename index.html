@@ -23,28 +23,28 @@
             color: white;
             border: none;
             border-radius: 50px;
-            position: fixed; /* 改為定點，JS 會控制其 top/left */
-            transition: all 0.2s ease;
-            z-index: 100;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            /* 下面兩行確保初始在螢幕正中央 */
+            position: fixed; 
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
+            transition: all 0.4s ease;
+            z-index: 100;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            white-space: nowrap; /* 確保長文字不會換行 */
         }
 
         .capoo-img {
             position: fixed;
-            width: 400px; /* ★ 這裡調大圖片尺寸，原本是 100px */
+            width: 400px; 
             pointer-events: none;
             animation: fadeOut 1.5s forwards;
             z-index: 50;
-            transform: translate(-50%, -50%); /* 讓圖片中心對準點擊位置 */
+            transform: translate(-50%, -50%);
         }
 
         @keyframes fadeOut {
             0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
-            100% { opacity: 0; transform: translate(-50%, -200%) scale(1.5); }
+            100% { opacity: 0; transform: translate(-50%, -150%) scale(1.2); }
         }
 
         #message {
@@ -70,8 +70,8 @@
         const btn = document.getElementById('move-btn');
         const message = document.getElementById('message');
         let count = 0;
+        let currentSpeed = 0.4;
 
-        // 圖片路徑（如果你創了 img 資料夾，請記得改成 'img/yourfile.png'）
         const capooImages = [
             'img/capoo1.png','img/capoo2.png','img/capoo3.png','img/capoo4.png','img/capoo5.png',
         ];
@@ -79,23 +79,33 @@
         btn.addEventListener('click', () => {
             count++;
 
-            // 取得目前按鈕的位置，用來放圖片
             const rect = btn.getBoundingClientRect();
             const centerX = rect.left + rect.width / 2;
             const centerY = rect.top + rect.height / 2;
 
             if (count < 5) {
-                // 1. 顯示加大後的咖波圖
                 showCapoo(centerX, centerY);
 
-                // 2. 讓按鈕跑走
+                if (count === 1) {
+                    btn.style.transform = 'none';
+                    btn.style.left = rect.left + 'px';
+                    btn.style.top = rect.top + 'px';
+                }
+
+                // 加速模式
+                currentSpeed = Math.max(0.05, 0.4 - (count * 0.08)); 
+                btn.style.transition = `all ${currentSpeed}s ease`;
+
                 moveButton();
                 
-                const tips = ["欸？跑掉了！", "抓不到我～", "再一次！", "就快點到了！"];
+                // ★ 假裝生氣與提示文字邏輯
+                const tips = [
+                    "欸？跑掉了！", 
+                    "變快了抓不到吧～", 
+                    "吼！真的不給你點了喔！", // 第三次點擊時顯示
+                    "最後一關！加油！"
+                ];
                 btn.innerText = tips[count - 1];
-
-                // 第一次點擊後移除居中的 transform，改由 left/top 完全控制
-                btn.style.transform = 'none';
 
             } else {
                 btn.style.display = 'none';
@@ -111,7 +121,7 @@
         });
 
         function moveButton() {
-            const padding = 100;
+            const padding = 150;
             const maxX = window.innerWidth - btn.offsetWidth - padding;
             const maxY = window.innerHeight - btn.offsetHeight - padding;
 
