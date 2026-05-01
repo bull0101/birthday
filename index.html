@@ -13,12 +13,10 @@
             overflow: hidden;
             background-color: #f0f8ff;
             font-family: "Microsoft JhengHei", sans-serif;
-            /* 優化手機點擊靈敏度 */
             touch-action: manipulation;
         }
 
         #move-btn {
-            /* ★ 加大按鈕與字體，手機上更好點擊 */
             padding: 25px 50px;
             font-size: 26px;
             font-weight: bold;
@@ -31,7 +29,6 @@
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
-            /* 初始移動速度 */
             transition: all 0.4s ease;
             z-index: 100;
             box-shadow: 0 6px 20px rgba(0,0,0,0.3);
@@ -40,7 +37,7 @@
 
         .capoo-img {
             position: fixed;
-            width: 325px; /* 加大的咖波圖案 */
+            width: 325px; 
             pointer-events: none;
             animation: fadeOut 1.5s forwards;
             z-index: 50;
@@ -78,13 +75,11 @@
         let count = 0;
         let currentSpeed = 0.4;
 
-        // 圖片路徑
         const capooImages = [
             'img/capoo1.png','img/capoo2.png','img/capoo3.png','img/capoo4.png','img/capoo5.png',
             'img/capoo6.png','img/capoo7.gif','img/capoo8.png','img/capoo9.png','img/capoo10.png'
         ];
 
-        // 追蹤還沒被抽到的圖片
         let availableImages = [...capooImages];
 
         btn.addEventListener('click', () => {
@@ -98,19 +93,22 @@
                 showCapoo(centerX, centerY);
 
                 if (count === 1) {
-                    // 第一次點擊後解除居中鎖定
                     btn.style.transform = 'none';
                     btn.style.left = rect.left + 'px';
                     btn.style.top = rect.top + 'px';
                 }
 
-                // ★ 加速模式：每次點擊縮短移動時間
-                currentSpeed = Math.max(0.05, 0.4 - (count * 0.08)); 
+                currentSpeed = Math.max(0.05, 0.4 - (count * 0.04)); 
                 btn.style.transition = `all ${currentSpeed}s ease`;
 
-                moveButton();
+                if (count < 9) {
+                    moveButton();
+                } else {
+                    btn.style.left = '50%';
+                    btn.style.top = '50%';
+                    btn.style.transform = 'translate(-50%, -50%)';
+                }
                 
-                // ★ 假裝生氣的台詞與提示文字
                 const tips = [
                     "咦？跑掉了！！！", 
                     "我剛才真的沒點到ㄇ？", 
@@ -125,13 +123,11 @@
                 btn.innerText = tips[count - 1];
 
             } else {
-                // 第五次點擊：成功！
                 btn.style.display = 'none';
                 message.style.display = 'block';
                 document.body.style.backgroundColor = '#fff5f5';
                 
-                // 噴發 15 次隨機圖片
-                for(let i=0; i<15; i++) {
+                for(let i=0; i<20; i++) {
                     setTimeout(() => {
                         showCapoo(Math.random()*window.innerWidth, Math.random()*window.innerHeight);
                     }, i*150);
@@ -140,24 +136,36 @@
         });
 
         function moveButton() {
-            // 考慮到按鈕加大，增加安全邊距防止跑出手機螢幕外
             const padding = 180; 
-            const maxX = window.innerWidth - btn.offsetWidth - (padding/2);
-            const maxY = window.innerHeight - btn.offsetHeight - (padding/2);
+            const minDistance = 250; // ★ 設定最小位移距離 (像素)
+            let randomX, randomY, distance;
 
-            const randomX = Math.max(20, Math.floor(Math.random() * maxX));
-            const randomY = Math.max(20, Math.floor(Math.random() * maxY));
+            // 獲取當前按鈕位置 (如果是第一次移動，以螢幕中心計算)
+            const currentX = parseFloat(btn.style.left) || window.innerWidth / 2;
+            const currentY = parseFloat(btn.style.top) || window.innerHeight / 2;
+
+            do {
+                const maxX = window.innerWidth - btn.offsetWidth - (padding / 2);
+                const maxY = window.innerHeight - btn.offsetHeight - (padding / 2);
+
+                randomX = Math.max(30, Math.floor(Math.random() * maxX));
+                randomY = Math.max(30, Math.floor(Math.random() * maxY));
+
+                // 計算新舊位置的距離
+                const dx = randomX - currentX;
+                const dy = randomY - currentY;
+                distance = Math.sqrt(dx * dx + dy * dy);
+
+            } while (distance < minDistance); // 如果距離太近，重新隨機一次
 
             btn.style.left = randomX + 'px';
             btn.style.top = randomY + 'px';
         }
 
         function showCapoo(x, y) {
-            // 洗牌邏輯：如果抽完了就重置
             if (availableImages.length === 0) {
                 availableImages = [...capooImages];
             }
-
             const randomIndex = Math.floor(Math.random() * availableImages.length);
             const selectedImg = availableImages.splice(randomIndex, 1)[0];
 
