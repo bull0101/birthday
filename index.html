@@ -94,7 +94,7 @@
             const centerX = rect.left + rect.width / 2;
             const centerY = rect.top + rect.height / 2;
 
-            if (count < 5) {
+            if (count < 10) {
                 showCapoo(centerX, centerY);
 
                 if (count === 1) {
@@ -112,10 +112,15 @@
                 
                 // ★ 假裝生氣的台詞與提示文字
                 const tips = [
-                    "欸？跑掉了！", 
-                    "變快了抓不到吧～", 
-                    "吼！真的不給你點了喔！", 
-                    "最後一關！加油！"
+                    "咦？跑掉了！！！", 
+                    "我剛才真的沒點到ㄇ？", 
+                    "！！按鈕居然會亂跑嗎！！", 
+                    "齁呦！！為什麼都點不到啦啦啦",
+                    "太慢了～太慢了 點快一點喲～",
+                    "怎麼還是點不到勒 真是的：）",
+                    "好啦！不鬧你ㄌ 站在原地等你吧",
+                    "嗯～該不會你真的信了吧！嘿嘿",
+                    "這次真不鬧了！請公主大人點擊"
                 ];
                 btn.innerText = tips[count - 1];
 
